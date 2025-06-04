@@ -19,6 +19,9 @@ export function Header() {
         <Link href="/upload" className={isActive('/upload')}>Upload</Link>
         <Link href="/display" className={isActive('/display')}>Galerie</Link>
         <Link href="/admin" className={isActive('/admin')}>Admin</Link>
+        <Link href="/login" className={isActive('/login')}>Connexion</Link>
+        <Link href="/signup" className={isActive('/signup')}>Inscription</Link>
+        <Link href="/logout" className={isActive('/logout')}>Déconnexion</Link>
       </header>
     </div>
   )

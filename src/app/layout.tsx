@@ -15,3 +15,4 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     </html>
   )
 }
+console.log('Layout re-rendered')

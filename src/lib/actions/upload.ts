@@ -5,22 +5,31 @@ import { redirect } from 'next/navigation'
 import fs from 'fs/promises'
 import path from 'path'
 import { randomUUID } from 'crypto'
+import { revalidatePath } from 'next/cache'
 
 export async function uploadPhoto(formData: FormData) {
-  const file = formData.get('photo') as File
-  const uploader = formData.get('uploader')?.toString() || ''
+  const rawFile = formData.get('photo')
+  const uploader = formData.get('uploader')
 
-  if (!file || file.size === 0 || !uploader) {
-    throw new Error('Champs manquants')
+  // ✅ Vérifications typesafe
+  if (!(rawFile instanceof File)) {
+    throw new Error('Fichier invalide ou manquant')
   }
 
-  const buffer = Buffer.from(await file.arrayBuffer())
-
-  if (!file.type.startsWith('image/')) {
-    throw new Error('Ce n’est pas une image')
+  if (typeof uploader !== 'string' || uploader.trim() === '') {
+    throw new Error("Nom de l'envoyeur manquant")
   }
 
-  const ext = file.name.split('.').pop()
+  if (!rawFile.type.startsWith('image/')) {
+    throw new Error('Ce fichier n’est pas une image')
+  }
+
+  if (rawFile.size === 0) {
+    throw new Error('Fichier vide')
+  }
+
+  const buffer = Buffer.from(await rawFile.arrayBuffer())
+  const ext = rawFile.name.split('.').pop()
   const filename = `${randomUUID()}.${ext}`
   const filepath = path.join(process.cwd(), 'public', 'uploads', filename)
 
@@ -32,6 +41,9 @@ export async function uploadPhoto(formData: FormData) {
       uploader,
     },
   })
+
+  // ✅ Revalidation automatique de la galerie
+  revalidatePath('/display')
 
   redirect('/upload?success=1')
 }
