@@ -1,10 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -12,13 +5,6 @@ generator client {
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
-}
-
-model Photo {
-  id        String   @id @default(cuid())
-  url       String
-  createdAt DateTime @default(now())
-  uploader  String
 }
 
 model User {
@@ -29,8 +15,34 @@ model User {
   role      String    @default("user")
   createdAt DateTime  @default(now())
   sessions  Session[]
+  photos    Photo[]   @relation("UserPhotos") // 👈 Opposite field of Photo.uploader
+  likes     Like[] // 👈 Opposite field of Like.user
 }
 
+model Photo {
+  id         String   @id @default(cuid())
+  url        String
+  createdAt  DateTime @default(now())
+  uploaderId String
+  uploader   User     @relation("UserPhotos", fields: [uploaderId], references: [id]) // 👈 Requires opposite field
+  likes      Like[] // 👈 Opposite field of Like.photo
+
+  // Auto-référence pour lier des photos entre elles
+  linkedPhotos Photo[] @relation("PhotoLinks")
+  linkedTo     Photo[] @relation("PhotoLinks")
+}
+
+model Like {
+  id        String   @id @default(cuid())
+  userId    String
+  photoId   String
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id]) // 👈 Requires opposite field in User
+  photo Photo @relation(fields: [photoId], references: [id]) // 👈 Requires opposite field in Photo
+
+  @@unique([userId, photoId]) // 👈 Un utilisateur ne peut liker une photo qu'une fois
+}
 
 model Session {
   id        String   @id

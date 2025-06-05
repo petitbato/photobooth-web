@@ -13,6 +13,8 @@ export default function HomePage() {
         <NavButton href="/admin" label="Espace admin" color="gray" />
         <NavButton href="/login" label="Se connecter" color="blue" />
         <NavButton href="/signup" label="Créer un compte" color="green" />
+        <NavButton href="/logout" label="Se déconnecter" color="gray" />
+        <NavButton href="/me" label="Mon profil" color="blue" />
       </nav>
     </main>
   )

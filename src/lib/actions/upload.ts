@@ -6,26 +6,24 @@ import fs from 'fs/promises'
 import path from 'path'
 import { randomUUID } from 'crypto'
 import { revalidatePath } from 'next/cache'
+import { getCurrentUser } from '@/lib/auth/currentUser'
 
 export async function uploadPhoto(formData: FormData) {
   const rawFile = formData.get('photo')
-  const uploader = formData.get('uploader')
 
-  // ✅ Vérifications typesafe
   if (!(rawFile instanceof File)) {
     throw new Error('Fichier invalide ou manquant')
   }
-
-  if (typeof uploader !== 'string' || uploader.trim() === '') {
-    throw new Error("Nom de l'envoyeur manquant")
-  }
-
   if (!rawFile.type.startsWith('image/')) {
     throw new Error('Ce fichier n’est pas une image')
   }
-
   if (rawFile.size === 0) {
     throw new Error('Fichier vide')
+  }
+
+  const user = await getCurrentUser()
+  if (!user) {
+    throw new Error('Utilisateur non authentifié')
   }
 
   const buffer = Buffer.from(await rawFile.arrayBuffer())
@@ -38,12 +36,10 @@ export async function uploadPhoto(formData: FormData) {
   await prisma.photo.create({
     data: {
       url: `/uploads/${filename}`,
-      uploader,
+      uploaderId: user.id, // ✅ nouvelle relation
     },
   })
 
-  // ✅ Revalidation automatique de la galerie
   revalidatePath('/display')
-
-  redirect('/upload?success=1')
+  redirect('/display')
 }

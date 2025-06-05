@@ -1,21 +1,17 @@
 'use server'
 
 import { prisma } from '@/lib/prisma'
-import fs from 'fs/promises'
-import path from 'path'
 import { revalidatePath } from 'next/cache'
+import { getCurrentUser } from '@/lib/auth/currentUser'
 
 export async function deletePhoto(formData: FormData) {
   const id = formData.get('id')?.toString()
-  if (!id) throw new Error('Missing ID')
+  if (!id) throw new Error('ID manquant')
 
-  const photo = await prisma.photo.findUnique({ where: { id } })
-  if (!photo) throw new Error('Photo not found')
-
-  const filePath = path.join(process.cwd(), 'public', photo.url)
-  await fs.unlink(filePath).catch(() => {
-    console.warn(`Fichier manquant : ${filePath}`)
-  })
+  const user = await getCurrentUser()
+  if (!user || user.role !== 'admin') {
+    throw new Error('Accès refusé : vous devez être administrateur pour supprimer une photo.')
+  }
 
   await prisma.photo.delete({ where: { id } })
 

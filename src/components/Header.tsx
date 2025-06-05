@@ -18,6 +18,7 @@ export function Header() {
         <Link href="/" className={isActive('/')}>Accueil</Link>
         <Link href="/upload" className={isActive('/upload')}>Upload</Link>
         <Link href="/display" className={isActive('/display')}>Galerie</Link>
+        <Link href="/me" className={isActive('/me')}>Mon profil</Link>
         <Link href="/admin" className={isActive('/admin')}>Admin</Link>
         <Link href="/login" className={isActive('/login')}>Connexion</Link>
         <Link href="/signup" className={isActive('/signup')}>Inscription</Link>

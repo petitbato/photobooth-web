@@ -5,6 +5,7 @@ import { signUpSchema, signInSchema } from "./schemas";
 import { clearSession, createUserSession } from "./core/session";
 import { revalidatePath } from "next/cache";
 
+
 export async function signIn(formData: FormData) {
   'use server'
 
@@ -58,11 +59,11 @@ export async function signUp(formData: FormData) {
   const hashedPassword = await hashPassword(password, salt)
   console.log('Creating user with email:', email)
   const user = await prisma.user.create({
-    data: { email, password: hashedPassword, salt },
+    data: { email, password: hashedPassword, salt, role: 'admin'},
   })
     console.log('User created with ID:', user.id)
 
-  await createUserSession({ id: user.id, role: 'user' })
+  await createUserSession({ id: user.id, role: 'admin' })
     console.log('User session created for user ID:', user.id)
   revalidatePath('/')
   redirect('/')

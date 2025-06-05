@@ -12,7 +12,6 @@ export async function getCurrentUser() {
         email: true,
         role: true,
         createdAt: true,
-        updatedAt: true,
         },
     })
     

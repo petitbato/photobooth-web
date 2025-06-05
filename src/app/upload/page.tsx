@@ -1,7 +1,16 @@
 import Form from 'next/form'
 import { uploadPhoto } from '@/lib/actions/upload'
+import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 
-export default function UploadForm() {
+export default async function UploadForm() {
+  'use server'
+  const session = await cookies()
+  const sessionId = session.get('session-id')?.value
+
+  if (!sessionId) {
+    redirect('/login')
+  }
   return (
     <Form action={uploadPhoto} className="space-y-4 bg-gray-50 p-6 rounded-lg shadow-md border">
       <div>
@@ -15,20 +24,6 @@ export default function UploadForm() {
           accept="image/*"
           required
           className="w-full border border-gray-300 rounded px-3 py-2 text-black"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="uploader" className="w-full rounded px-3 py-2 text-black">
-          Nom de l’envoyeur
-        </label>
-        <input
-          type="text"
-          name="uploader"
-          id="uploader"
-          required
-          className="w-full border border-gray-300 rounded px-3 py-2 text-black"
-          placeholder="Votre nom"
         />
       </div>
 
